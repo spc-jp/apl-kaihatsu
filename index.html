@@ -1,0 +1,994 @@
+<!doctype html>
+<html lang="ja" class="scroll-smooth">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="考えるを、ひとりにしない。専門用語を使わず、想いと強みを整理する。あなたのためのAIパートナー。" />
+  <title>考えるを、ひとりにしない｜次の一手コンパス</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Noto Sans JP"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              navy: '#020562',
+              cyan: '#22AEC9',
+              light: '#E6F6F9',
+            }
+          },
+          boxShadow: {
+            'soft': '0 10px 40px -10px rgba(2, 5, 98, 0.08)',
+            'card': '0 4px 20px -2px rgba(2, 5, 98, 0.06)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Utilities */
+    .glass {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    
+    /* Animation Classes */
+    .fade-in-up {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+    .fade-in-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    /* Gradient Background */
+    .bg-gradient-mesh {
+      background-color: #ffffff;
+      background-image: 
+        radial-gradient(at 10% 10%, rgba(34, 174, 201, 0.15) 0px, transparent 50%),
+        radial-gradient(at 90% 0%, rgba(2, 5, 98, 0.08) 0px, transparent 50%),
+        radial-gradient(at 50% 90%, rgba(34, 174, 201, 0.05) 0px, transparent 50%);
+    }
+
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 100;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(2, 5, 98, 0.6);
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(4px);
+        opacity: 0;
+        transition: opacity 0.3s ease-out;
+    }
+    .modal.show {
+        display: flex;
+        opacity: 1;
+    }
+
+    /* Form Styles */
+    .opt-label {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    /* Checked State for Checkbox */
+    .opt-input:checked + .opt-content {
+      background-color: rgba(34, 174, 201, 0.1);
+      border-color: #22AEC9;
+      box-shadow: 0 0 0 1px #22AEC9;
+    }
+    .opt-input:checked + .opt-content .check-icon {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .opt-input:checked + .opt-content .check-circle {
+      background-color: #22AEC9;
+      border-color: #22AEC9;
+    }
+    .opt-input:checked + .opt-content .check-circle i {
+      color: white;
+      opacity: 1;
+    }
+    
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      z-index: 90;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+
+<body class="font-sans text-slate-800 bg-gradient-mesh min-h-screen relative selection:bg-brand-cyan selection:text-white pb-20">
+
+  <!-- Toast -->
+  <div id="toast" class="toast bg-brand-navy/90 text-white px-6 py-3 rounded-full shadow-lg font-bold text-sm backdrop-blur">
+    保存しました
+  </div>
+
+  <!-- Header -->
+  <header class="fixed top-0 w-full z-50 glass border-b border-slate-200/50 transition-all duration-300">
+    <div class="max-w-5xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
+      
+      <!-- Left: Logo -->
+      <div class="flex items-center">
+        <!-- Logo Image: object-containで全体表示、w-autoで比率維持 -->
+        <img src="rogo.png" alt="Logo" class="h-12 md:h-16 w-auto object-contain hover:scale-105 transition-transform">
+      </div>
+
+      <!-- Center: Title -->
+      <div class="absolute left-1/2 transform -translate-x-1/2">
+        <span class="font-black text-brand-navy text-lg md:text-xl tracking-tight">次の一手コンパス</span>
+      </div>
+
+      <!-- Right: Link -->
+      <div>
+        <a href="https://www.smileplusctg.com/" target="_blank" rel="noopener" class="bg-brand-navy hover:bg-slate-800 text-white text-xs md:text-sm font-bold px-4 py-2 rounded-full shadow-lg shadow-brand-navy/20 transition-all hover:-translate-y-0.5 flex items-center gap-2">
+          公式サイト <i data-lucide="external-link" class="w-3 h-3"></i>
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <main class="pt-24 md:pt-32 px-4 md:px-6 max-w-3xl mx-auto">
+    
+    <!-- Hero Area -->
+    <div class="text-center mb-10 fade-in-up">
+      <div class="inline-flex items-center gap-2 bg-brand-cyan/10 text-brand-navy text-xs font-bold px-3 py-1.5 rounded-full border border-brand-cyan/20 mb-4">
+        <span class="w-2 h-2 rounded-full bg-brand-cyan animate-pulse"></span>
+        30秒でOK｜複数選択OK
+      </div>
+      <h1 class="text-2xl md:text-4xl font-black text-brand-navy leading-tight mb-4">
+        考えるを、ひとりにしない。<br>
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-navy to-brand-cyan">AIと一緒に、頭の中を整理する。</span>
+      </h1>
+      <p class="text-slate-600 text-sm md:text-base leading-relaxed mb-8">
+        専門用語を使わず、想いと強みを整理する<br class="md:hidden">あなたのためのAIパートナー。<br>
+        直感で選ぶだけで、次の一歩が見えてきます。
+      </p>
+
+      <!-- Progress Bar -->
+      <div class="bg-white p-4 rounded-2xl shadow-card border border-slate-100 max-w-lg mx-auto">
+        <div class="flex justify-between text-xs font-bold text-brand-navy mb-2">
+          <span>進捗状況</span>
+          <span id="pText">0/6</span>
+        </div>
+        <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+          <div id="barFill" class="h-full bg-gradient-to-r from-brand-cyan to-brand-navy w-0 transition-all duration-500 ease-out rounded-full"></div>
+        </div>
+        <div class="mt-2 text-[10px] text-slate-400 text-right">
+          ※入力内容は自動保存されます
+        </div>
+      </div>
+    </div>
+
+    <!-- Questions Section -->
+    <section class="space-y-6 fade-in-up" style="animation-delay: 0.1s;">
+      
+      <!-- Q1 -->
+      <div class="bg-white/80 backdrop-blur border border-white/50 rounded-2xl p-6 shadow-card hover:shadow-soft transition-all">
+        <h2 class="text-lg font-bold text-brand-navy mb-1">Q1 今いちばん困っている(めんどう）なことは？</h2>
+        <p class="text-xs text-slate-500 mb-4">複数選んで大丈夫です</p>
+        <div class="grid gap-3" id="q1-opts">
+          <!-- Checkboxes -->
+          <label class="opt-label group">
+            <input type="checkbox" name="q1" value="strong" class="opt-input hidden">
+            <div class="opt-content p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center gap-3 group-hover:bg-brand-light/30 transition-colors">
+              <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center bg-white check-circle transition-colors">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 transition-opacity"></i>
+              </div>
+              <span class="font-medium text-slate-700 text-sm">強みが言語化できない</span>
+            </div>
+          </label>
+          <label class="opt-label group">
+            <input type="checkbox" name="q1" value="message" class="opt-input hidden">
+            <div class="opt-content p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center gap-3 group-hover:bg-brand-light/30 transition-colors">
+              <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center bg-white check-circle transition-colors">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 transition-opacity"></i>
+              </div>
+              <span class="font-medium text-slate-700 text-sm">伝え方がまとまらない</span>
+            </div>
+          </label>
+          <label class="opt-label group">
+            <input type="checkbox" name="q1" value="post" class="opt-input hidden">
+            <div class="opt-content p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center gap-3 group-hover:bg-brand-light/30 transition-colors">
+              <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center bg-white check-circle transition-colors">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 transition-opacity"></i>
+              </div>
+              <span class="font-medium text-slate-700 text-sm">発信が続かない（ネタ切れ）</span>
+            </div>
+          </label>
+          <label class="opt-label group">
+            <input type="checkbox" name="q1" value="priority" class="opt-input hidden">
+            <div class="opt-content p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center gap-3 group-hover:bg-brand-light/30 transition-colors">
+              <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center bg-white check-circle transition-colors">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 transition-opacity"></i>
+              </div>
+              <span class="font-medium text-slate-700 text-sm">何からやるか決められない</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="bg-white/80 backdrop-blur border border-white/50 rounded-2xl p-6 shadow-card hover:shadow-soft transition-all">
+        <h2 class="text-lg font-bold text-brand-navy mb-1">Q2 いつまでに少しでも進めたいですか？</h2>
+        <p class="text-xs text-slate-500 mb-4">複数選んで大丈夫です</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <label class="opt-label group">
+            <input type="checkbox" name="q2" value="week" class="opt-input hidden">
+            <div class="opt-content p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center gap-3 group-hover:bg-brand-light/30 transition-colors">
+              <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center bg-white check-circle shrink-0 transition-colors">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 transition-opacity"></i>
+              </div>
+              <span class="font-medium text-slate-700 text-sm">今週中</span>
+            </div>
+          </label>
+          <label class="opt-label group">
+            <input type="checkbox" name="q2" value="month" class="opt-input hidden">
+            <div class="opt-content p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center gap-3 group-hover:bg-brand-light/30 transition-colors">
+              <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center bg-white check-circle shrink-0 transition-colors">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 transition-opacity"></i>
+              </div>
+              <span class="font-medium text-slate-700 text-sm">1ヶ月以内</span>
+            </div>
+          </label>
+          <label class="opt-label group">
+            <input type="checkbox" name="q2" value="someday" class="opt-input hidden">
+            <div class="opt-content p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center gap-3 group-hover:bg-brand-light/30 transition-colors">
+              <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center bg-white check-circle shrink-0 transition-colors">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 transition-opacity"></i>
+              </div>
+              <span class="font-medium text-slate-700 text-sm">未定（でも焦ってる）</span>
+            </div>
+          </label>
+          <label class="opt-label group">
+            <input type="checkbox" name="q2" value="calm" class="opt-input hidden">
+            <div class="opt-content p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center gap-3 group-hover:bg-brand-light/30 transition-colors">
+              <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center bg-white check-circle shrink-0 transition-colors">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 transition-opacity"></i>
+              </div>
+              <span class="font-medium text-slate-700 text-sm">急ぎではない（整えたい）</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="bg-white/80 backdrop-blur border border-white/50 rounded-2xl p-6 shadow-card hover:shadow-soft transition-all">
+        <h2 class="text-lg font-bold text-brand-navy mb-1">Q3 誰に伝えたい内容ですか？</h2>
+        <p class="text-xs text-slate-500 mb-4">複数選んで大丈夫です</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <label class="opt-label group">
+            <input type="checkbox" name="q3" value="new" class="opt-input hidden">
+            <div class="opt-content p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center gap-3 group-hover:bg-brand-light/30 transition-colors">
+              <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center bg-white check-circle shrink-0 transition-colors">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 transition-opacity"></i>
+              </div>
+              <span class="font-medium text-slate-700 text-sm">新規のお客様</span>
+            </div>
+          </label>
+          <label class="opt-label group">
+            <input type="checkbox" name="q3" value="exist" class="opt-input hidden">
+            <div class="opt-content p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center gap-3 group-hover:bg-brand-light/30 transition-colors">
+              <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center bg-white check-circle shrink-0 transition-colors">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 transition-opacity"></i>
+              </div>
+              <span class="font-medium text-slate-700 text-sm">既存のお客様</span>
+            </div>
+          </label>
+          <label class="opt-label group">
+            <input type="checkbox" name="q3" value="recruit" class="opt-input hidden">
+            <div class="opt-content p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center gap-3 group-hover:bg-brand-light/30 transition-colors">
+              <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center bg-white check-circle shrink-0 transition-colors">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 transition-opacity"></i>
+              </div>
+              <span class="font-medium text-slate-700 text-sm">採用（求職者）</span>
+            </div>
+          </label>
+          <label class="opt-label group">
+            <input type="checkbox" name="q3" value="inside" class="opt-input hidden">
+            <div class="opt-content p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center gap-3 group-hover:bg-brand-light/30 transition-colors">
+              <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center bg-white check-circle shrink-0 transition-colors">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 transition-opacity"></i>
+              </div>
+              <span class="font-medium text-slate-700 text-sm">社内（スタッフ）</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="bg-white/80 backdrop-blur border border-white/50 rounded-2xl p-6 shadow-card hover:shadow-soft transition-all">
+        <h2 class="text-lg font-bold text-brand-navy mb-1">Q4 今ある素材はどれですか？</h2>
+        <p class="text-xs text-slate-500 mb-4">複数選んで大丈夫です</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <label class="opt-label group">
+            <input type="checkbox" name="q4" value="web" class="opt-input hidden">
+            <div class="opt-content p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center gap-3 group-hover:bg-brand-light/30 transition-colors">
+              <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center bg-white check-circle shrink-0 transition-colors">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 transition-opacity"></i>
+              </div>
+              <span class="font-medium text-slate-700 text-sm">Webサイトはある</span>
+            </div>
+          </label>
+          <label class="opt-label group">
+            <input type="checkbox" name="q4" value="sns" class="opt-input hidden">
+            <div class="opt-content p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center gap-3 group-hover:bg-brand-light/30 transition-colors">
+              <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center bg-white check-circle shrink-0 transition-colors">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 transition-opacity"></i>
+              </div>
+              <span class="font-medium text-slate-700 text-sm">SNSはやっている</span>
+            </div>
+          </label>
+          <label class="opt-label group">
+            <input type="checkbox" name="q4" value="photo" class="opt-input hidden">
+            <div class="opt-content p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center gap-3 group-hover:bg-brand-light/30 transition-colors">
+              <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center bg-white check-circle shrink-0 transition-colors">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 transition-opacity"></i>
+              </div>
+              <span class="font-medium text-slate-700 text-sm">写真や動画がある</span>
+            </div>
+          </label>
+          <label class="opt-label group">
+            <input type="checkbox" name="q4" value="none" class="opt-input hidden">
+            <div class="opt-content p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center gap-3 group-hover:bg-brand-light/30 transition-colors">
+              <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center bg-white check-circle shrink-0 transition-colors">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 transition-opacity"></i>
+              </div>
+              <span class="font-medium text-slate-700 text-sm">ほぼ何もない</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Q5 -->
+      <div class="bg-white/80 backdrop-blur border border-white/50 rounded-2xl p-6 shadow-card hover:shadow-soft transition-all">
+        <h2 class="text-lg font-bold text-brand-navy mb-1">Q5 今の状態に近いのは？</h2>
+        <p class="text-xs text-slate-500 mb-4">複数選んで大丈夫です</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <label class="opt-label group">
+            <input type="checkbox" name="q5" value="messy" class="opt-input hidden">
+            <div class="opt-content p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center gap-3 group-hover:bg-brand-light/30 transition-colors">
+              <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center bg-white check-circle shrink-0 transition-colors">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 transition-opacity"></i>
+              </div>
+              <span class="font-medium text-slate-700 text-sm">頭の中が散らかっている</span>
+            </div>
+          </label>
+          <label class="opt-label group">
+            <input type="checkbox" name="q5" value="stuck" class="opt-input hidden">
+            <div class="opt-content p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center gap-3 group-hover:bg-brand-light/30 transition-colors">
+              <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center bg-white check-circle shrink-0 transition-colors">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 transition-opacity"></i>
+              </div>
+              <span class="font-medium text-slate-700 text-sm">途中で止まっている</span>
+            </div>
+          </label>
+          <label class="opt-label group">
+            <input type="checkbox" name="q5" value="cannot" class="opt-input hidden">
+            <div class="opt-content p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center gap-3 group-hover:bg-brand-light/30 transition-colors">
+              <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center bg-white check-circle shrink-0 transition-colors">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 transition-opacity"></i>
+              </div>
+              <span class="font-medium text-slate-700 text-sm">言葉が出てこない</span>
+            </div>
+          </label>
+          <label class="opt-label group">
+            <input type="checkbox" name="q5" value="tired" class="opt-input hidden">
+            <div class="opt-content p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center gap-3 group-hover:bg-brand-light/30 transition-colors">
+              <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center bg-white check-circle shrink-0 transition-colors">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 transition-opacity"></i>
+              </div>
+              <span class="font-medium text-slate-700 text-sm">忙しくて手が回らない</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Q6 -->
+      <div class="bg-white/80 backdrop-blur border border-white/50 rounded-2xl p-6 shadow-card hover:shadow-soft transition-all">
+        <h2 class="text-lg font-bold text-brand-navy mb-1">Q6 いちばん欲しいゴールは？</h2>
+        <p class="text-xs text-slate-500 mb-4">複数選んで大丈夫です</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+          <label class="opt-label group">
+            <input type="checkbox" name="q6" value="inquiry" class="opt-input hidden">
+            <div class="opt-content p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center gap-3 group-hover:bg-brand-light/30 transition-colors">
+              <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center bg-white check-circle shrink-0 transition-colors">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 transition-opacity"></i>
+              </div>
+              <span class="font-medium text-slate-700 text-sm">問い合わせを増やしたい</span>
+            </div>
+          </label>
+          <label class="opt-label group">
+            <input type="checkbox" name="q6" value="trust" class="opt-input hidden">
+            <div class="opt-content p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center gap-3 group-hover:bg-brand-light/30 transition-colors">
+              <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center bg-white check-circle shrink-0 transition-colors">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 transition-opacity"></i>
+              </div>
+              <span class="font-medium text-slate-700 text-sm">信頼を深めたい</span>
+            </div>
+          </label>
+          <label class="opt-label group">
+            <input type="checkbox" name="q6" value="recruit" class="opt-input hidden">
+            <div class="opt-content p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center gap-3 group-hover:bg-brand-light/30 transition-colors">
+              <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center bg-white check-circle shrink-0 transition-colors">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 transition-opacity"></i>
+              </div>
+              <span class="font-medium text-slate-700 text-sm">採用を強化したい</span>
+            </div>
+          </label>
+          <label class="opt-label group">
+            <input type="checkbox" name="q6" value="habit" class="opt-input hidden">
+            <div class="opt-content p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center gap-3 group-hover:bg-brand-light/30 transition-colors">
+              <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center bg-white check-circle shrink-0 transition-colors">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 transition-opacity"></i>
+              </div>
+              <span class="font-medium text-slate-700 text-sm">発信を習慣にしたい</span>
+            </div>
+          </label>
+        </div>
+
+        <!-- Free Text -->
+        <div class="mt-4">
+          <label class="block text-xs font-bold text-slate-500 mb-2">補足（任意）現状を一言で</label>
+          <input id="memo" type="text" placeholder="例：強みはあるはずだけど、言葉にできない" 
+            class="w-full bg-white border border-slate-200 rounded-xl p-4 text-sm focus:ring-2 focus:ring-brand-cyan outline-none transition-shadow">
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-between mt-8 pt-6 border-t border-slate-100">
+           <button id="btnResult" class="bg-brand-navy hover:bg-slate-800 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-brand-navy/20 transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
+             <i data-lucide="sparkles" class="w-4 h-4"></i> 診断結果を出す
+           </button>
+           <button id="btnReset" class="text-xs text-red-400 hover:text-red-600 font-bold px-4 py-2 hover:bg-red-50 rounded-lg transition-colors">
+             リセット
+           </button>
+        </div>
+        <p class="text-[10px] text-slate-400 mt-4">
+          入力完了後、ボタンを押すと下に結果が表示されます。
+        </p>
+      </div>
+
+      <!-- Result Section (Initially Hidden) -->
+      <div id="result" class="hidden fade-in-up">
+        <div class="bg-white/90 backdrop-blur border-2 border-brand-cyan/20 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+          
+          <!-- Decor -->
+          <div class="absolute -right-10 -top-10 w-40 h-40 bg-brand-cyan/10 rounded-full blur-2xl"></div>
+
+          <div class="relative z-10">
+            <div class="inline-block bg-brand-navy text-white text-[10px] font-bold px-3 py-1 rounded-full mb-3 tracking-widest" id="rtype">
+              診断タイプ
+            </div>
+            <h3 class="text-xl md:text-2xl font-black text-brand-navy mb-4 leading-tight" id="rtitle">
+              あなたの次の一手
+            </h3>
+            <p class="text-sm md:text-base text-slate-600 leading-relaxed mb-8" id="rtext">
+              <!-- Description -->
+            </p>
+
+            <!-- Template Box -->
+            <div class="bg-brand-light/40 border border-brand-cyan/20 rounded-xl p-5 mb-8" id="tplBox">
+              <div class="text-xs font-bold text-brand-cyan mb-2 flex items-center gap-1">
+                <i data-lucide="pen-tool" class="w-3 h-3"></i> あなたにおすすめのキャッチコピーの型
+              </div>
+              <div class="font-bold text-brand-navy text-base md:text-lg leading-relaxed" id="tplContent">
+                <!-- Template Content -->
+              </div>
+            </div>
+
+            <ul class="space-y-3 mb-8" id="rlist">
+              <!-- Steps -->
+            </ul>
+
+            <!-- Copy/Send Box -->
+            <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+               <p class="text-xs font-bold text-brand-navy mb-3 flex items-center gap-2">
+                 <i data-lucide="clipboard-list" class="w-4 h-4"></i> コピーして使えるアクション宣言
+               </p>
+               <textarea id="copyarea" class="w-full bg-white border border-slate-200 rounded-xl p-4 text-sm text-slate-600 h-48 focus:ring-2 focus:ring-brand-cyan outline-none resize-none mb-4 font-mono leading-relaxed"></textarea>
+               
+               <div class="flex flex-col sm:flex-row gap-3">
+                 <button id="btnSendMail" class="flex-1 bg-brand-cyan hover:bg-cyan-600 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+                   <i data-lucide="mail" class="w-4 h-4"></i> メールで送る
+                 </button>
+                 <a href="https://www.smileplusctg.com/contact" target="_blank" rel="noopener" class="flex-1 bg-white hover:bg-slate-50 text-brand-navy border border-slate-200 font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 text-sm">
+                   問い合わせする <i data-lucide="external-link" class="w-3 h-3"></i>
+                 </a>
+               </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-slate-50 border-t border-slate-200 py-10 mt-20">
+    <div class="max-w-5xl mx-auto px-4 md:px-6 text-center">
+      <!-- Footer Logo: h-20 w-auto object-contain で統一 -->
+      <img src="rogo.png" alt="Logo" class="h-20 w-auto object-contain shadow-sm mx-auto mb-4">
+      <p class="text-xs text-slate-500 mb-2">次の一手コンパス</p>
+      <div class="text-[10px] text-slate-400">
+        © <span id="year"></span> Smile Plus Consulting.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Floating Bar -->
+  <div class="fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur border-t border-slate-200 z-40 transition-transform duration-300 md:hidden">
+    <div class="flex items-center justify-between gap-4">
+      <div class="flex flex-col">
+        <span class="font-bold text-brand-navy text-xs">迷いを整理したら</span>
+        <span class="text-[10px] text-slate-500">公式サイトで事例を見る😊</span>
+      </div>
+      <a href="https://www.smileplusctg.com/" target="_blank" rel="noopener" class="bg-brand-navy text-white text-xs font-bold py-2.5 px-4 rounded-lg shadow-lg shrink-0">
+        公式サイト ↗
+      </a>
+    </div>
+  </div>
+
+  <!-- Modal for Send Options -->
+  <div id="send-modal" class="modal">
+      <div class="bg-white p-6 md:p-8 rounded-3xl max-w-md w-full mx-4 shadow-2xl relative fade-in-up">
+          <button id="close-modal-btn" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-2">
+              <i data-lucide="x" class="w-6 h-6"></i>
+          </button>
+          
+          <h3 class="text-xl font-bold mb-2 text-center text-brand-navy">保存・送信方法を選ぶ</h3>
+          <p class="text-xs text-center text-slate-500 mb-6">診断結果をどうしますか？</p>
+          
+          <div class="space-y-3">
+              <!-- Option 1: Default Mailer -->
+              <button onclick="sendMail()" class="w-full flex items-center p-4 border-2 border-slate-100 hover:border-brand-cyan/50 hover:bg-brand-light/50 rounded-2xl transition-all group text-left">
+                  <div class="w-10 h-10 bg-brand-light text-brand-cyan rounded-full flex items-center justify-center flex-shrink-0 mr-4 group-hover:bg-brand-cyan group-hover:text-white transition-colors">
+                      <i data-lucide="mail" class="w-5 h-5"></i>
+                  </div>
+                  <div>
+                      <p class="font-bold text-brand-navy text-sm">メールソフトで送る</p>
+                      <p class="text-[10px] text-slate-500">Outlook, Macメールなど</p>
+                  </div>
+              </button>
+
+              <!-- Option 2: Gmail -->
+              <button onclick="sendGmail()" class="w-full flex items-center p-4 border-2 border-slate-100 hover:border-red-400 hover:bg-red-50 rounded-2xl transition-all group text-left">
+                  <div class="w-10 h-10 bg-red-100 text-red-500 rounded-full flex items-center justify-center flex-shrink-0 mr-4 group-hover:bg-red-500 group-hover:text-white transition-colors">
+                      <i data-lucide="mail-plus" class="w-5 h-5"></i>
+                  </div>
+                  <div>
+                      <p class="font-bold text-slate-800 text-sm">Gmailで送る</p>
+                      <p class="text-[10px] text-slate-500">ブラウザでGmailをお使いの方</p>
+                  </div>
+              </button>
+
+              <!-- Option 3: Copy Text -->
+              <div class="border-t border-slate-100 mt-4 pt-4">
+                  <button onclick="copyText()" id="modal-copy-btn" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition-colors flex items-center justify-center gap-2">
+                      <i data-lucide="copy" class="w-3.5 h-3.5"></i> テキストをコピーする
+                  </button>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // ========= Logic =========
+    const SITE_URL = "https://www.smileplusctg.com/";
+    const EMAIL_TO = "spc@smileplusctg.com";
+    const EMAIL_SUBJECT = "【次の一手コンパス】診断結果の保存";
+
+    const $ = (id) => document.getElementById(id);
+    const barFill = $("barFill");
+    const pText = $("pText");
+    const resultBox = $("result");
+    const toastEl = $("toast");
+    const fields = ["q1","q2","q3","q4","q5","q6"];
+    const storageKey = "spc_nextstep_compass_v4";
+
+    // Modal Logic
+    const sendModal = $("send-modal");
+    const closeModalBtn = $("close-modal-btn");
+    const btnSendMail = $("btnSendMail");
+    
+    btnSendMail.addEventListener("click", () => sendModal.classList.add('show'));
+    closeModalBtn.addEventListener("click", () => sendModal.classList.remove('show'));
+    window.onclick = (e) => { if(e.target == sendModal) sendModal.classList.remove('show'); };
+
+    function getBody(){
+        return $("copyarea").value;
+    }
+
+    function sendMail() {
+        const body = getBody();
+        const mailto = `mailto:${EMAIL_TO}?subject=${encodeURIComponent(EMAIL_SUBJECT)}&body=${encodeURIComponent(body)}`;
+        window.location.href = mailto;
+    }
+
+    function sendGmail() {
+        const body = getBody();
+        const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${EMAIL_TO}&su=${encodeURIComponent(EMAIL_SUBJECT)}&body=${encodeURIComponent(body)}`;
+        window.open(gmailUrl, '_blank');
+    }
+
+    function copyText() {
+        const text = getBody();
+        const btn = $("modal-copy-btn");
+        const original = btn.innerHTML;
+        
+        navigator.clipboard.writeText(text).then(() => {
+             btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i> コピーしました！';
+             btn.classList.add("text-green-600", "bg-green-50");
+             lucide.createIcons();
+             setTimeout(() => {
+                 btn.innerHTML = original;
+                 btn.classList.remove("text-green-600", "bg-green-50");
+                 lucide.createIcons();
+                 sendModal.classList.remove('show');
+                 showToast("コピーしました");
+             }, 1500);
+        }).catch(err => {
+             alert("コピーに失敗しました。手動でコピーしてください。");
+        });
+    }
+
+    // App Logic: Changed to handle multiple values
+    function getValues(name){
+      const els = document.querySelectorAll(`input[name="${name}"]:checked`);
+      return Array.from(els).map(el => el.value);
+    }
+    
+    function setValues(name, values){
+      if(!Array.isArray(values)) return;
+      values.forEach(val => {
+        const el = document.querySelector(`input[name="${name}"][value="${val}"]`);
+        if(el) el.checked = true;
+      });
+    }
+
+    function showToast(msg){
+      toastEl.textContent = msg;
+      toastEl.classList.add("show");
+      setTimeout(()=>{
+        toastEl.classList.remove("show");
+      }, 2000);
+    }
+
+    function answeredCount(){
+      let c = 0;
+      for(const n of fields){
+        if(getValues(n).length > 0) c++;
+      }
+      return c;
+    }
+
+    function updateProgress(){
+      const c = answeredCount();
+      pText.textContent = `${c}/6`;
+      barFill.style.width = `${Math.round((c/6)*100)}%`;
+    }
+
+    function collect(){
+      const data = { memo: $("memo").value.trim() };
+      fields.forEach(n => data[n] = getValues(n));
+      return data;
+    }
+
+    function save(){
+      const data = collect();
+      localStorage.setItem(storageKey, JSON.stringify(data));
+    }
+
+    function load(){
+      try{
+        const raw = localStorage.getItem(storageKey);
+        if(!raw) return;
+        const d = JSON.parse(raw);
+        fields.forEach(n => {
+          if(d[n]) setValues(n, d[n]);
+        });
+        if(d.memo) $("memo").value = d.memo;
+      }catch(e){}
+    }
+
+    function resetAll(){
+      fields.forEach(n => {
+        document.querySelectorAll(`input[name="${n}"]`).forEach(x=>x.checked=false);
+      });
+      $("memo").value = "";
+      localStorage.removeItem(storageKey);
+      resultBox.classList.add("hidden");
+      updateProgress();
+      window.scrollTo({top:0, behavior:"smooth"});
+      showToast("リセットしました");
+    }
+
+    function labelMap(){
+      return {
+        q1:{
+          strong:"強みが言語化できない",
+          message:"伝え方がまとまらない",
+          post:"発信が続かない（ネタ切れ）",
+          priority:"何からやるか決められない"
+        },
+        q2:{
+          week:"今週中",
+          month:"1ヶ月以内",
+          someday:"未定（でも焦ってる）",
+          calm:"急ぎではない（整えたい）"
+        },
+        q3:{
+          new:"新規のお客様",
+          exist:"既存のお客様",
+          recruit:"採用（求職者）",
+          inside:"社内（スタッフ）"
+        },
+        q4:{
+          web:"Webサイトはある",
+          sns:"SNSはやっている",
+          photo:"写真や動画がある",
+          none:"ほぼ何もない"
+        },
+        q5:{
+          messy:"頭の中が散らかっている",
+          stuck:"途中で止まっている",
+          cannot:"言葉が出てこない",
+          tired:"忙しくて手が回らない"
+        },
+        q6:{
+          inquiry:"問い合わせを増やしたい",
+          trust:"信頼を深めたい",
+          recruit:"採用を強化したい",
+          habit:"発信を習慣にしたい"
+        }
+      }
+    }
+
+    // Updated logic for multiple selections
+    function decideType(d){
+      let score = {A:0, B:0, C:0, D:0};
+      
+      // Q1
+      if(d.q1.includes("priority")) score.A += 3;
+      if(d.q1.includes("strong"))   score.B += 3;
+      if(d.q1.includes("post"))     score.C += 3;
+      if(d.q1.includes("message"))  score.D += 3;
+      
+      // Q5
+      if(d.q5.includes("messy")) { score.A += 2; score.B += 1; }
+      if(d.q5.includes("cannot")){ score.B += 2; score.D += 1; }
+      if(d.q5.includes("stuck")) { score.A += 1; score.D += 1; }
+      if(d.q5.includes("tired")) { score.A += 1; score.C += 1; }
+      
+      // Q6
+      if(d.q6.includes("habit"))   score.C += 2;
+      if(d.q6.includes("inquiry")) { score.D += 1; score.C += 1; }
+      if(d.q6.includes("trust"))   score.D += 2;
+      if(d.q6.includes("recruit")) { score.D += 1; score.B += 1; }
+      
+      // Q2
+      if(d.q2.includes("week"))  { score.A += 1; score.D += 1; }
+      if(d.q2.includes("month")) score.A += 1;
+      if(d.q2.includes("someday")) score.A += 1;
+      if(d.q2.includes("calm")) score.B += 1;
+
+      let best = "A", max = -999;
+      for(const k of ["A","B","C","D"]){
+        if(score[k] > max){ max = score[k]; best = k; }
+      }
+      return best;
+    }
+
+    function buildResult(d){
+      const labels = labelMap();
+      const type = decideType(d);
+      
+      // Helper to join multiple labels
+      const joinLabels = (key, valArr) => {
+        if(!valArr || valArr.length === 0) return "未選択";
+        return valArr.map(v => labels[key][v]).join("、");
+      };
+
+      const targetName = joinLabels("q3", d.q3) || "お客様";
+      const goalName   = joinLabels("q6", d.q6) || "目標達成";
+
+      const types = {
+        A:{
+          badge:"優先順位コンパスタイプ",
+          title:"いま必要なのは、やることを減らす整理です",
+          desc:`あれもこれもと手を出してしまうと、結局どれも進みません。**「${goalName}」**ためには、新しいことを始めるよりも、勇気を持って「やらないこと」を決めるのが一番の近道です。`,
+          tplCopy: `「うちは<span style="border-bottom:2px solid #ccc;display:inline-block;width:120px;">[一番の強み]</span>だけの会社です。<br><span style="border-bottom:2px solid #ccc;display:inline-block;width:120px;">[捨てた業務]</span>はやりません。」`,
+          tplDesc: "何でも屋を卒業し、強みを尖らせる「一点突破」の型",
+          steps:[
+            "今日やることを1つだけ決める（30分以内で終わるもの）",
+            "やらないことを2つ決めて、後回しにする",
+            "困りごとを一言にまとめて、相談の入口を作る"
+          ],
+          credo: `私は今日から、${targetName}のために、全てをやろうとせず一点に集中することを誓います！`
+        },
+        B:{
+          badge:"強み言語化タイプ",
+          title:"いま必要なのは、強みを短い言葉にすることです",
+          desc:`素晴らしい強みをお持ちでも、言葉になっていなければ伝わりません。**「${targetName}」**に信頼されるには、抽象的な説明よりも、具体的な「数字」や「実績」を一言添えるだけで十分です。`,
+          tplCopy: `「<span style="border-bottom:2px solid #ccc;display:inline-block;width:80px;">[ターゲット]</span>の悩みを、たった<span style="border-bottom:2px solid #ccc;display:inline-block;width:80px;">[期間/回数]</span>で解決した、<br><span style="border-bottom:2px solid #ccc;display:inline-block;width:120px;">[独自のメソッド名]</span>をご存知ですか？」`,
+          tplDesc: "曖昧な強みを数値化し、権威性を出す「実績強調」の型",
+          steps:[
+            "お客様に喜ばれた出来事を1つだけ書く",
+            "その理由を「だから私は…」で一文にする",
+            "一言キャッチを作って、発信の土台にする"
+          ],
+          credo: `私は今日から、${targetName}のために、感覚ではなく数値と事実で語ることを誓います！`
+        },
+        C:{
+          badge:"発信習慣タイプ",
+          title:"いま必要なのは、ネタを“仕組み化”することです",
+          desc:`発信が続かないのは能力のせいではありません。毎回ゼロからネタを考えるのが大変なだけです。**「${goalName}」**ためには、あなたの発信に「番組名（コーナー名）」をつけて、枠を固定してしまうのがコツです。`,
+          tplCopy: `「<span style="border-bottom:2px solid #ccc;display:inline-block;width:100px;">[ターゲット]</span>のための、<br>1日1分<span style="border-bottom:2px solid #ccc;display:inline-block;width:120px;">[専門分野]</span>講座」`,
+          tplDesc: "迷う時間をなくし、プロとして認知される「連載タイトル」の型",
+          steps:[
+            "今月の出来事を3つメモ（小さくてOK）",
+            "それぞれに「学び」を一文つける",
+            "SNS投稿の型に当てはめて作る（最初は短文）"
+          ],
+          credo: `私は今日から、${targetName}のために、悩む時間を減らして型で発信することを誓います！`
+        },
+        D:{
+          badge:"伝わる言葉づくりタイプ",
+          title:"「機能の説明」をやめて、「未来の姿」を語ると選ばれます",
+          desc:`**「${targetName}」**は、あなたの商品の機能そのものではなく、それを使った後の「変化した自分」にお金を払います。スペックを並べるのではなく、**「${goalName}」**ために、「どんな嫌なことがなくなって、どんな良いことがあるか」という変化（Before→After）を語ってください。`,
+          tplCopy: `「<span style="border-bottom:2px solid #ccc;display:inline-block;width:120px;">[悩み(Before)]</span>だった私が、<br><span style="border-bottom:2px solid #ccc;display:inline-block;width:80px;">[商品]</span>のおかげで、今では<span style="border-bottom:2px solid #ccc;display:inline-block;width:120px;">[理想(After)]</span>になれました。」`,
+          tplDesc: "機能説明をやめ、顧客の感情を動かす「Before/After」の型",
+          steps:[
+            "相手が今抱えている「不満・不安（Before）」を言語化する",
+            "サービスを受けた後の「理想の状態（After）」を言語化する",
+            "そのギャップを埋めるのが私のサービスです、という順で書く"
+          ],
+          credo: `私は今日から、${targetName}のために、機能説明ではなく未来の姿を語ることを誓います！`
+        }
+      };
+
+      const t = types[type];
+
+      $("rtype").textContent = `あなたは ${t.badge}`;
+      $("rtitle").textContent = t.title;
+      $("rtext").innerHTML = t.desc;
+
+      const tplContent = $("tplContent");
+      tplContent.innerHTML = `${t.tplCopy}<span class="text-xs text-slate-400 block mt-2 font-normal">${t.tplDesc}</span>`;
+      
+      const ul = $("rlist");
+      ul.innerHTML = "";
+      t.steps.forEach(s=>{
+        const li = document.createElement("li");
+        li.className = "flex items-start gap-2 text-sm text-slate-700";
+        li.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4 text-brand-cyan shrink-0 mt-0.5"></i> ${s}`;
+        ul.appendChild(li);
+      });
+      lucide.createIcons();
+
+      const memoLine = d.memo ? `補足：${d.memo}\n` : "";
+      
+      const text =
+`【次の一手コンパス 診断結果】
+
+■あなたの現状
+・タイプ：${t.badge}
+・お悩み：${joinLabels("q1", d.q1)}
+・ターゲット：${targetName}
+・ゴール：${goalName}
+${memoLine}
+
+■あなたへのアドバイス
+${t.desc.replace(/\*\*/g, "").replace(/<[^>]+>/g, "")}
+
+■今日からのアクション宣言
+「${t.credo}」
+
+■おすすめのキャッチコピーの型
+${t.tplCopy.replace(/<[^>]+>/g, "").replace(/<br>/g, "\n")}
+（${t.tplDesc}）
+
+■具体的な3ステップ
+1. ${t.steps[0]}
+2. ${t.steps[1]}
+3. ${t.steps[2]}
+
+-----------------------------
+公式サイト（事例・全体像）
+${SITE_URL}
+`;
+      $("copyarea").value = text;
+
+      resultBox.classList.remove("hidden");
+      resultBox.scrollIntoView({behavior:"smooth", block:"start"});
+      showToast("診断結果が出ました");
+    }
+
+    function validate(d){
+      const missing = [];
+      for(const n of fields){
+        if(d[n].length === 0) missing.push(n.toUpperCase());
+      }
+      return missing;
+    }
+
+    // Events
+    document.addEventListener("change", (e)=>{
+      if(e.target.matches('input[type="checkbox"]')){
+        updateProgress();
+        save();
+      }
+    });
+    $("memo").addEventListener("input", ()=>{ save(); });
+
+    $("btnReset").addEventListener("click", ()=>{
+      if(confirm("入力内容をリセットしますか？")) resetAll();
+    });
+
+    $("btnResult").addEventListener("click", ()=>{
+      const d = collect();
+      const miss = validate(d);
+      if(miss.length){
+        showToast("未入力の項目があります");
+        return;
+      }
+      save();
+      buildResult(d);
+    });
+
+    // Observer Animation
+    const observer = new IntersectionObserver((entries)=>{
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          entry.target.classList.add('visible');
+        }
+      });
+    }, {threshold:0.1});
+    document.querySelectorAll('.fade-in-up').forEach(el=>observer.observe(el));
+
+    load();
+    updateProgress();
+  </script>
+</body>
+</html>
